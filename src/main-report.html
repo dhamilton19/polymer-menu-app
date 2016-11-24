@@ -1,0 +1,106 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/highcharts-chart/highcharts-chart.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tab.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="main-report">
+    <template>
+        <style include="shared-styles">
+            :host {
+                display: block;
+                padding: 10px;
+            }
+
+            :root {
+                --paper-tabs-selection-bar-color: #3f51b5;
+            }
+
+            .section {
+                /*font-family: 'Dancing Script', cursive;*/
+                text-align: center;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+                color: #4e4e4e;
+            }
+
+            .hr {
+                border-bottom: 1px solid #ccc;
+                width: 100%;
+                margin-top: 20px;
+                margin-bottom: 20px;
+            }
+
+            .chart {
+                margin-top: 100px;
+                align-items: center;
+                display: flex;
+                flex-direction: column;
+            }
+        </style>
+
+        <paper-card class="card">
+            <div class="section">
+                <h1>Report</h1>
+            </div>
+            <div class="hr"></div>
+            <paper-tabs selected="{{selectedTab}}">
+                <paper-tab>Starters</paper-tab>
+                <paper-tab>Mains</paper-tab>
+                <paper-tab>Desserts</paper-tab>
+            </paper-tabs>
+
+            <highcharts-chart
+                    class="chart"
+                    id="chart"
+                    type="column"
+                    title=""
+                    data="{{data}}"
+                    x-axis="{{xAxis}}"
+            ></highcharts-chart>
+        </paper-card>
+    </template>
+
+    <script>
+
+        Polymer({
+            is: 'main-report',
+            properties: {
+                data: Object,
+                cachedData: Object,
+                selectedTab: {
+                    type: Object,
+                    value: 0,
+                    observer: '_selectTab'
+                },
+                title: {
+                    type: String,
+                    value: ''
+                },
+                xAxis: Object
+            },
+            attached: function () {
+                $.getJSON('/data', function (data) {
+                    this.cachedData = data;
+                    this._selectTab(0);
+                }.bind(this));
+            },
+            _selectTab: function (newValue) {
+                if (this.cachedData) {
+                    this.data = JSON.parse(JSON.stringify(this.cachedData[newValue]));
+                    var categories = [];
+                    for (var i = 0; i < this.data.length; i++) {
+                        categories.push(this.data[i].name);
+                    }
+                    this.xAxis = {
+                        categories: categories
+                    };
+                }
+            }
+
+        });
+    </script>
+</dom-module>

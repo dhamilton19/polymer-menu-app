@@ -1,0 +1,24 @@
+{
+  "name": "polymer-menu-app",
+  "version": "1.0.0",
+  "description": "Polymer Menu App",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "cross-env NODE_ENV=development UV_THREADPOOL_SIZE=100 node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://dhamilton91@bitbucket.org/dhamilton91/polymer-menu-app.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/dhamilton91/polymer-menu-app#readme",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "cross-env": "^3.1.3",
+    "express": "^4.14.0",
+    "json-db": "git+https://github.com/dhamilton91/json-db.git",
+    "lodash": "^4.16.6"
+  }
+}

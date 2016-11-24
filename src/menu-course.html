@@ -1,0 +1,117 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../bower_components/paper-radio-button/paper-radio-button.html">
+
+<dom-module id="menu-course">
+    <template>
+        <style include="shared-styles">
+            :host {
+                display: block;
+
+                padding: 10px;
+            }
+            .radio-group > paper-radio-button {
+                display:block;
+            }
+            p:first-child {
+                font-weight: bold;
+            }
+            .error {
+                color: #f44336;
+            }
+            .error-message {
+                color: #f44336;
+                margin-top: -10px;
+                font-size: 12px;
+            }
+        </style>
+        <div>
+            <p class$="{{className}}">{{label}}</p>
+            <template is="dom-if" if="{{shouldShowErrorMessage(className)}}">
+                <p class="error-message">Please enter a value</p>
+            </template>
+            <paper-radio-group class="radio-group" selected="{{selectedValue}}">
+                <template is="dom-repeat" items="{{options}}">
+                    <paper-radio-button name="{{item.id}}"
+                                        on-change="onChange"
+                                        selected="{{isSelected(item.id)}}">{{item.name}}</paper-radio-button>
+
+                    <template is="dom-if" if="{{shouldShow(selectedValue, item)}}">
+                        <paper-radio-group class="radio-group" selected="{{selectedSubValue}}">
+                            <template is="dom-repeat" items="{{item.options}}" as="subOption">
+                                <paper-radio-button name="{{subOption.id}}"
+                                                    on-change="onChangeSub"
+                                                    selected="{{isSelected(subOption.id)}}">{{subOption.name}}</paper-radio-button>
+                                </template>
+                        </paper-radio-group>
+                    </template>
+                </template>
+
+            </paper-radio-group>
+        </div>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'menu-course',
+            properties: {
+                label: String,
+                options: {
+                    type: Array,
+                    notify: true
+                },
+                name: String,
+                className: String,
+                selectedValue: String,
+                selectedSubValue: String,
+                subValuePosition: String
+            },
+            attached: function(){
+                for(var i=0;i<this.options.length;i++){
+                    if(this.options[i].options){
+                        this.subValuePosition = ''+i;
+                        break;
+                    }
+                }
+                Window.state[this.name] = {};
+                this.className = '';
+            },
+            isSelected: function(id){
+                return id === this.selectedValue;
+            },
+            onChange: function(event){
+                this.selectedValue = event.target.name;
+                this.selectedSubValue = '';
+                this.className = '';
+                Window.state[this.name] = {
+                    value: this.selectedValue,
+                    subValue: ''
+                };
+            },
+            onChangeSub: function(event){
+                this.selectedSubValue = event.target.name;
+                Window.state[this.name].subValue = this.selectedSubValue;
+                this.className = '';
+            },
+            shouldShow: function(selectedValue, item){
+                return item.options && item.id === this.subValuePosition && selectedValue === this.subValuePosition;
+            },
+            shouldShowErrorMessage: function(error){
+                return error === 'error';
+            },
+            validate: function() {
+                var validateSubOption = function(){
+                    if(this.subValuePosition  > -1){
+                        return this.selectedValue !== this.subValuePosition.toString() ||
+                            (this.selectedValue === this.subValuePosition.toString()
+                                && this.selectedSubValue !== "" && this.selectedSubValue !== null);
+                    }
+                    return true;
+                }.bind(this);
+                var isValid = this.selectedValue != null && this.selectedValue != "" && validateSubOption();
+                if(!isValid) this.className = 'error';
+                return isValid;
+            }
+        });
+    </script>
+</dom-module>

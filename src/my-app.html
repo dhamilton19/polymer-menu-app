@@ -1,0 +1,112 @@
+<!--<link href="https://fonts.googleapis.com/css?family=Dancing+Script" rel="stylesheet">-->
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<Link rel="import" href="./main-menu.html">
+<Link rel="import" href="./main-report.html">
+<Link rel="import" href="./my-view404.html">
+
+<dom-module id="my-app">
+    <template>
+        <style>
+            :host {
+                --app-primary-color: #4285f4;
+                --app-secondary-color: black;
+
+                display: block;
+            }
+            .reportBtn {
+                color: white;
+                text-decoration: none;
+            }
+            .github {
+                border-radius: 100%;
+                height: 45px;
+                width: 45px;
+                min-width: 45px;
+                background-color: white;
+                border: 1px solid black;
+                margin-left: 20px;
+            }
+            .github-icon {
+                height: 30px;
+                width: 30px;
+                min-width: 30px;
+            }
+        </style>
+
+        <app-location route="{{route}}"></app-location>
+        <app-route
+                route="{{route}}"
+                pattern="/:page"
+                data="{{routeData}}"
+                tail="{{subroute}}"></app-route>
+
+        <paper-toolbar>
+            <div>
+                <template is="dom-if" if="{{!showShouldBtn(page)}}">
+                    <a href="/" class="reportBtn"><iron-icon icon="back"></iron-icon></a>
+                </template>
+            </div>
+            <span class="title">Polymer Menu App</span>
+            <div>
+                <template is="dom-if" if="{{showShouldBtn(page)}}">
+                    <a href="/report" class="reportBtn"><paper-button raised class="button">View Report</paper-button></a>
+                </template>
+            </div>
+            <a href="http://github.com/dhamilton91/polymer-menu-app">
+                <paper-button raised class="button github">
+                    <iron-icon src="github.png" class="github-icon">
+                </iron-icon></paper-button></iron-icon>
+            </a>
+        </paper-toolbar>
+        <iron-pages
+                selected="[[page]]"
+                attr-for-selected="name"
+                fallback-selection="view404"
+                role="main">
+            <main-menu name="menu"></main-menu>
+            <main-report name="report"></main-report>
+            <my-view404 name="view404"></my-view404>
+        </iron-pages>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'my-app',
+            properties: {
+                page: {
+                    type: String,
+                    reflectToAttribute: true,
+                    observer: '_pageChanged'
+                }
+            },
+            created: function(){
+                Window.state = {};
+            },
+            observers: [
+                '_routePageChanged(routeData.page)'
+            ],
+            _routePageChanged: function (page) {
+                this.page = page || 'menu';
+            },
+            _pageChanged: function (page) {
+                // Load page import on demand. Show 404 page if fails
+                var resolvedPageUrl = this.resolveUrl('main-' + page + '.html');
+                this.importHref(resolvedPageUrl, null, this._showPage404, true);
+            },
+            _showPage404: function () {
+                this.page = 'view404';
+            },
+            showShouldBtn: function(page){
+                return page !== 'report';
+            }
+        });
+    </script>
+</dom-module>

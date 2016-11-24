@@ -1,0 +1,197 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="menu-course.html">
+<link rel="import" href="shared-styles.html">
+<script src="menu.js" type="application/javascript"></script>
+
+
+<dom-module id="main-menu">
+    <template>
+        <style include="shared-styles">
+            :host {
+                display: block;
+                padding: 10px;
+            }
+
+            .radio-group > paper-radio-button {
+                display: block;
+            }
+
+            .button {
+                background-color: #e91e63;
+                color: white;
+                width: 100%;
+                margin-left:0;
+            }
+            .section {
+                /*font-family: 'Dancing Script', cursive;*/
+                text-align: center;
+            }
+            h1 {
+                font-size: 3rem;
+            }
+            h1, h2{
+                color: #4e4e4e;
+            }
+            .hr {
+                border-bottom: 1px solid #ccc;
+                width: 100%;
+                margin-top: 20px;
+                margin-bottom: 20px;
+            }
+            .name-field {
+                margin-left: 10px;
+                display: inline-block;
+                width: 400px;
+                margin-bottom: 20px;
+                margin-top: 20px;
+                /*background-color: #c1c1c1;*/
+                /*padding: 10px;*/
+            }
+            .error-message {
+                color: #f44336;
+                margin-top: 0;
+                font-size: 12px;
+            }
+            .success-toast {
+                background-color: #4caf50;
+                text-align: center;
+                width: 100%;
+            }
+            .error-toast {
+                width: 100%;
+                text-align: center;
+            }
+            .link {
+                float:right;
+            }
+        </style>
+
+        <paper-card class="card">
+            <div class="section">
+                <h1>{{title}}</h1>
+                <h2>{{subtitle}}</h2>
+            </div>
+            <div class="hr"></div>
+            <div id="form">
+                <div class="name-field">
+                    <paper-input label="Enter full name" on-change="onChange" id="name" class$="{{fullNameClass}}"></paper-input>
+                    <template is="dom-if" if="{{shouldShowErrorMessage(fullNameClass)}}">
+                        <p class="error-message">Please enter a value</p>
+                    </template>
+                </div>
+                <menu-course label="{{starters.name}}" options="{{starters.options}}" name="starter" id="starter"></menu-course>
+                <menu-course label="{{mains.name}}" options="{{mains.options}}" name="main" id="main"></menu-course>
+                <menu-course label="{{desserts.name}}" options="{{desserts.options}}" name="dessert" id="dessert"></menu-course>
+                <div class="hr"></div>
+                <paper-button raised class="button" on-click="onSubmit">Submit</paper-button>
+            </div>
+        </paper-card>
+        <paper-toast id="successtoast" text="Save Successful!" class="success-toast"></paper-toast>
+        <paper-toast id="errortoast" text="Error, Save Failed! - {{errorMessage}}" class="error-toast"></paper-toast>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'main-menu',
+            properties: {
+                starters: {
+                    type: Object
+                },
+                mains: {
+                    type: Object
+                },
+                desserts: {
+                    type: Object
+                },
+                fullNameClass: String,
+                title: String,
+                subtitle: String,
+                errorMessage: String
+            },
+            ready: function () {
+                this.starters = window.menu.starters;
+                this.mains = window.menu.mains;
+                this.desserts = window.menu.desserts;
+                this.title = window.title;
+                this.subtitle = window.subtitle;
+            },
+            onChange: function(event){
+                Window.state.name = event.target.value;
+                this.fullNameClass = '';
+            },
+            shouldShowErrorMessage: function(error){
+                return error === 'error';
+            },
+            onSubmit: function(){
+                var validateName = function(){
+                    var isValid = this.$.name.value !== "" && this.$.name.value !== null;
+                    if(!isValid) this.fullNameClass = 'error';
+                    return isValid;
+                }.bind(this);
+                var validate = function(){
+                    var message = {
+                        name: validateName(),
+                        starter: this.$.starter.validate(),
+                        main: this.$.main.validate(),
+                        dessert: this.$.dessert.validate()
+                    };
+                    var isValid = true;
+                    $.each(message, function(key){
+                        if(!message[key]) isValid = false;
+                        if(!isValid) return;
+                    });
+                    message.isValid = isValid;
+                    return message;
+                }.bind(this);
+                var validation = validate();
+                if(validation.isValid) {
+                    var formatData = function (state) {
+                        state = $.extend({}, state);
+                        var getIndex = function (options, id) {
+                            for (var i = 0; i < options.length; i++) {
+                                if (options[i].id === id) {
+                                    return i;
+                                }
+                            }
+                        };
+                        if (state.starter && state.starter.subValue === '') delete state.starter.subValue;
+                        if (state.main && state.main.subValue === '') delete state.main.subValue;
+                        if (state.dessert && state.dessert.subValue === '') delete state.dessert.subValue;
+
+                        state.starter = this.starters.options[getIndex(this.starters.options, state.starter.value)].name;
+                        if (state.main.subValue && state.main.subValue !== '') {
+                            state.cooked = this.mains.options["1"].options[getIndex(this.mains.options["1"].options, state.main.subValue)].name;
+                        }
+                        state.main = this.mains.options[getIndex(this.mains.options, state.main.value)].name;
+                        state.dessert = this.desserts.options[getIndex(this.desserts.options, state.dessert.value)].name;
+
+                        return state;
+                    }.bind(this);
+                    $.post('/input', formatData(Window.state))
+                        .done(function() {
+                            this.$.successtoast.open()
+                        }.bind(this))
+                        .fail(function() {
+                                this.errorMessage = "Server error";
+                                this.$.errortoast.open();
+                        }.bind(this));
+                }
+                else {
+                    var message = "";
+                    delete validation.isValid;
+                    $.each(validation, function(key){
+                        if(!validation[key]) message += " " + key;
+                    });
+                    message = message.split(" ");
+                    message.shift();
+                    message = ("Missing: " + message.join(", ")).toUpperCase();
+                    this.errorMessage = message;
+                    this.$.errortoast.open();
+                }
+            }
+        });
+    </script>
+</dom-module>
