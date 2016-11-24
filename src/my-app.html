@@ -38,6 +38,7 @@
                 height: 30px;
                 width: 30px;
                 min-width: 30px;
+                margin-left: -2px;
             }
         </style>
 
@@ -51,7 +52,7 @@
         <paper-toolbar>
             <div>
                 <template is="dom-if" if="{{!showShouldBtn(page)}}">
-                    <a href="/" class="reportBtn"><iron-icon icon="back"></iron-icon></a>
+                    <a href="/" class="reportBtn"><iron-icon icon="arrow-back"></iron-icon></a>
                 </template>
             </div>
             <span class="title">Polymer Menu App</span>
@@ -62,8 +63,8 @@
             </div>
             <a href="http://github.com/dhamilton91/polymer-menu-app">
                 <paper-button raised class="button github">
-                    <iron-icon src="github.png" class="github-icon">
-                </iron-icon></paper-button></iron-icon>
+                    <iron-icon src="github.png" class="github-icon"></iron-icon>
+                </paper-button>
             </a>
         </paper-toolbar>
         <iron-pages
