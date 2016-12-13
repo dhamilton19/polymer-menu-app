@@ -3,7 +3,8 @@
 
 #####Proof of concept using Polymer
 
-*Only supported in Chrome
+
+
 
 Installation:
 

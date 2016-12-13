@@ -12,7 +12,7 @@
     "url": "git+https://dhamilton91@bitbucket.org/dhamilton91/polymer-menu-app.git"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "homepage": "https://bitbucket.org/dhamilton91/polymer-menu-app#readme",
   "dependencies": {
     "body-parser": "^1.15.2",
