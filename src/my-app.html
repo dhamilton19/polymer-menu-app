@@ -58,7 +58,7 @@
             <span class="title">Polymer Menu App</span>
             <div>
                 <template is="dom-if" if="{{showShouldBtn(page)}}">
-                    <a href="/report" class="reportBtn"><paper-button raised class="button">View Report</paper-button></a>
+                    <a href="/report" class="reportBtn" on-click="click"><paper-button raised class="button">View Report</paper-button></a>
                 </template>
             </div>
             <a href="http://github.com/dhamilton91/polymer-menu-app">
@@ -73,7 +73,7 @@
                 fallback-selection="view404"
                 role="main">
             <main-menu name="menu"></main-menu>
-            <main-report name="report"></main-report>
+            <main-report name="report" id="report"></main-report>
             <my-view404 name="view404"></my-view404>
         </iron-pages>
     </template>
@@ -107,6 +107,9 @@
             },
             showShouldBtn: function(page){
                 return page !== 'report';
+            },
+            click: function() {
+                this.$.report.reload();
             }
         });
     </script>

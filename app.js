@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const db = require('json-db').Db;
 db.init({
-    directory: 'C:/'
+    directory: 'C:\\Users\\n0224247'
 });
 
 const app = express();
@@ -14,13 +14,13 @@ app.use(bodyParser.json());
 app.use('/src', express.static(path.join(__dirname, '/src')));
 app.use('/bower_components', express.static(__dirname + '/bower_components'));
 
-app.listen(8080, '0.0.0.0', (err) => {
+app.listen(5000, '0.0.0.0', (err) => {
     if (err) {
         console.log(err);
         return;
     }
 
-    console.log('Listening at http://0.0.0.0:8080');
+    console.log('Listening at http://0.0.0.0:5000');
 });
 
 app.post('/input', (req, res) => {

@@ -83,10 +83,7 @@
                 xAxis: Object
             },
             attached: function () {
-                $.getJSON('/data', function (data) {
-                    this.cachedData = data;
-                    this._selectTab(0);
-                }.bind(this));
+                this.reload();
             },
             _selectTab: function (newValue) {
                 if (this.cachedData) {
@@ -99,6 +96,12 @@
                         categories: categories
                     };
                 }
+            },
+            reload: function() {
+                $.getJSON('/data', function (data) {
+                    this.cachedData = data;
+                    this._selectTab(0);
+                }.bind(this));
             }
 
         });
